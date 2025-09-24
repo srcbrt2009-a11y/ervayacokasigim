@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Özür Web Sitesi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #fce4ec, #ffe4f0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+  perspective: 1000px;
+  position: relative;
+}
+
+/* Pembe kalpli arka plan */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path fill="%23ff4081" d="M10 3.22l.71-.71C12.1.85 14.76.92 16.24 2.4c1.48 1.48 1.48 3.88 0 5.36L10 16.24 3.76 7.76c-1.48-1.48-1.48-3.88 0-5.36 1.48-1.48 4.14-1.55 5.53-.15L10 3.22z"/></svg>');
+  background-repeat: repeat;
+  opacity: 0.15;
+  z-index: 0;
+  pointer-events: none;
+  animation: kalpHareket 10s linear infinite;
+}
+
+@keyframes kalpHareket {
+  0% { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+
+/* Sayaç */
+#sayac-container {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+#sayac {
+  display: flex;
+  gap: 10px;
+}
+
+.sayiKutusu {
+  background: linear-gradient(135deg, #ff80ab, #ff4081);
+  color: #fff;
+  padding: 15px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  min-width: 70px;
+  text-align: center;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.sayiKutusu span {
+  display: block;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+#sayacAciklama {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 18px;
+  color: #e91e63;
+  font-family: 'Pacifico', cursive;
+}
+
+/* Zarf ve kartlar */
+.zarf-container {
+  position: relative;
+  width: 250px;
+  height: 150px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.zarf {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-style: preserve-3d;
+  transition: transform 1s ease;
+}
+
+.zarf.open {
+  transform: rotateX(180deg);
+}
+
+.zarf-front, .zarf-back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: #ff4081;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 20px;
+  backface-visibility: hidden;
+}
+
+.zarf-back {
+  transform: rotateX(180deg);
+}
+
+.kart, .sonKart {
+  width: 320px;
+  min-height: 200px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: absolute;
+  padding: 20px;
+  font-size: 20px;
+  transform: translateY(-100px);
+  opacity: 0;
+  transition: all 0.8s ease;
+  pointer-events: none;
+}
+
+.kart.show, .sonKart.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#kart { z-index: 10; }
+#barisKart { z-index: 15; }
+#sonKart { z-index: 20; }
+
+button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 50px;
+  background: #ff4081;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Pacifico', cursive;
+}
+
+button:hover {
+  transform: scale(1.1);
+  background: #e91e63;
+}
+
+#confetti {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 30;
+}
+</style>
+</head>
+<body>
+
+<!-- Sayaç -->
+<div id="sayac-container">
+  <div id="sayac"></div>
+  <div id="sayacAciklama">❤️ Sevgili olduğumuzdan beri geçen süre ❤️</div>
+</div>
+
+<div class="zarf-container" id="zarfContainer">
+  <div class="zarf" id="zarf">
+    <div class="zarf-front">💌 Açmak İçin Tıkla</div>
+    <div class="zarf-back"></div>
+  </div>
+</div>
+
+<div class="kart" id="kart">
+  Çatlak fıstığım, özür dilerim ❤️<br>
+  <button id="devamBtn">Devam Etmek İçin Tıkla</button>
+</div>
+
+<div class="kart" id="barisKart">
+  Barıştık mı güzelim?<br>
+  <button id="evetBtn">Evet</button>
+  <button id="hayirBtn">Hayır</button>
+</div>
+
+<div class="sonKart" id="sonKart">
+  Sorumun cevabı bu değil eşşşek 😅<br>
+  <button id="yenidenBtn">Başa Dön</button>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+// ---------- Sayaç ----------
+const baslangicTarihi = new Date("March 12, 2025 23:39:00");
+const sayacDiv = document.getElementById("sayac");
+
+function guncelleSayacKutucuk() {
+    const simdi = new Date();
+    let fark = simdi - baslangicTarihi;
+
+    let saniye = Math.floor(fark / 1000) % 60;
+    let dakika = Math.floor(fark / (1000 * 60)) % 60;
+    let saat = Math.floor(fark / (1000 * 60 * 60)) % 24;
+    let gun = Math.floor(fark / (1000 * 60 * 60 * 24));
+
+    sayacDiv.innerHTML = `
+      <div class="sayiKutusu">${gun}<span>Gün</span></div>
+      <div class="sayiKutusu">${saat}<span>Saat</span></div>
+      <div class="sayiKutusu">${dakika}<span>Dakika</span></div>
+      <div class="sayiKutusu">${saniye}<span>Saniye</span></div>
+    `;
+}
+
+guncelleSayacKutucuk();
+setInterval(guncelleSayacKutucuk, 1000);
+
+// ---------- Ana Site Fonksiyonları ----------
+const zarfContainer = document.getElementById('zarfContainer');
+const zarf = document.getElementById('zarf');
+const kart = document.getElementById('kart');
+const devamBtn = document.getElementById('devamBtn');
+const barisKart = document.getElementById('barisKart');
+const evetBtn = document.getElementById('evetBtn');
+const hayirBtn = document.getElementById('hayirBtn');
+const sonKart = document.getElementById('sonKart');
+const yenidenBtn = document.getElementById('yenidenBtn');
+
+let hayirSayac = 0;
+
+// Zarf 3D açma ve kart çıkışı
+zarfContainer.addEventListener('click', () => {
+  zarf.classList.add('open');
+  setTimeout(() => {
+    kart.classList.add('show');
+  }, 1000);
+});
+
+devamBtn.addEventListener('click', () => {
+  kart.classList.remove('show');
+  barisKart.classList.add('show');
+});
+
+evetBtn.addEventListener('click', () => {
+  tebrik();
+});
+
+hayirBtn.addEventListener('click', () => {
+  hayirSayac++;
+  let scale = 1 + hayirSayac * 0.2;
+  barisKart.style.transform = `translateY(0) scale(${scale})`;
+  if (hayirSayac >= 5) {
+    barisKart.classList.remove('show');
+    sonKart.classList.add('show');
+    hayirSayac = 0;
+    barisKart.style.transform = `translateY(0) scale(1)`;
+  }
+});
+
+yenidenBtn.addEventListener('click', () => {
+  sonKart.classList.remove('show');
+  kart.classList.add('show');
+});
+
+// ---------- Konfeti ve Tebrik ----------
+function tebrik() {
+  kart.classList.remove('show');
+  barisKart.classList.remove('show');
+  sonKart.classList.remove('show');
+
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const confettis = [];
+  for(let i=0;i<300;i++){
+    confettis.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height - canvas.height,
+      r: Math.random()*6+4,
+      d: Math.random()*5+2,
+      color: `hsl(${Math.random()*360},100%,50%)`,
+      tilt: Math.random()*10-10,
+      tiltSpeed: Math.random()*0.1+0.05
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettis.forEach(c=>{
+      ctx.beginPath();
+      ctx.moveTo(c.x + c.tilt, c.y);
+      ctx.lineTo(c.x + c.tilt + c.r/2, c.y + c.r);
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = c.r/2;
+      ctx.stroke();
+      c.y += c.d;
+      c.tilt += c.tiltSpeed;
+      if(c.y>canvas.height) c.y = -10;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  const tebrikMesaji = document.createElement('div');
+  tebrikMesaji.textContent = "🎉 Tebrikler, bir ömür boyu Berat Saraç hakkı kazandınız! 🎉";
+  tebrikMesaji.style.position = 'absolute';
+  tebrikMesaji.style.top = '50%';
+  tebrikMesaji.style.left = '50%';
+  tebrikMesaji.style.transform = 'translate(-50%, -50%)';
+  tebrikMesaji.style.fontSize = '28px';
+  tebrikMesaji.style.fontWeight = 'bold';
+  tebrikMesaji.style.color = '#e91e63';
+  tebrikMesaji.style.textAlign = 'center';
+  tebrikMesaji.style.zIndex = "50";
+  document.body.appendChild(tebrikMesaji);
+}
+</script>
+
+</body>
+</html>
